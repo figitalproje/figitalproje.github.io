@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metamask and Bluetooth Control</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.4/dist/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js"></script>
+</head>
+<body>
+    <body onload="loginWithMetamask()"></body>
+    <button onclick="Home()">Ana Sayfa</button>    
+    <button onclick="loginWithMetamask()">Login with Metamask</button>
+    <p id="address"></p>
+    <br> <input type="text" id="contractAddress" placeholder="Otomatik Barkod">
+    <h3>Yeni Mühür Siparişi</h3>
+    <input type="text" id="purchaseAdet" placeholder="Adet Girin">
+    <button onclick="YeniMuhur()">Satın Al</button>
+    <h3>Yeni Mühürleme</h3>
+    <textarea id="UrunAciklama" rows="2" cols="40" placeholder="Ürün Açıklaması Girin"></textarea><br>
+    <button onclick="Muhurle()">Mühürle</button>
+    <br><p id="ConnectionDisplay"></p>
+    <br><p id="publicKeyDisplay"></p>
+    <p id="publicKeyDisplay2"></p>
+    <br><p id="signatureOutput"></p>
+    <br><p id="signatureCheck"></p>
+    
+
+<script>
+    function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+let port;
+let internalmesaj="";
+function Home(){ window.location.href = "/index.html";}
+function hexToUint8Array(hexString) {
+    var result = new Uint8Array(hexString.length / 2);
+    for (var i = 0; i < hexString.length; i += 2) {
+        result[i / 2] = parseInt(hexString.substr(i, 2), 16);
+    }
+    return result;
+}
+async function loginWithMetamask() {
+            if (typeof window.ethereum !== 'undefined') {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    document.getElementById('address').innerText = account;
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+                alert('Please install Metamask extension!');
+            }
+        }
+async function YeniMuhur(){
+        if(typeof window.ethereum !== 'undefined'){
+            const tokenAdet=parseInt(document.getElementById('purchaseAdet').value);
+            const web3 = new Web3("https://rpc.sepolia.org");
+            const  contractAddress = "0x782cc31cec9f432594a3cf71f5ae1ebe8ad5c18c";
+            const contract = new web3.eth.Contract([{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_fromTokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"_toTokenId","type":"uint256"}],"name":"BatchMetadataUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_tokenId","type":"uint256"}],"name":"MetadataUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"newmetadata","type":"string"}],"name":"CloseSeal","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"string","name":"barcode","type":"string"}],"name":"IDofBarcode","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"OpenSeal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"barcodeToTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastAssignedTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastMintedTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"metadataModified","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"newURI","type":"string"}],"name":"modifyMetadata","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"tokenURI","type":"string"},{"internalType":"string","name":"barcode","type":"string"}],"name":"preMintSeal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"price","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"publisher","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"purchaseSeal","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"sealStatus","outputs":[{"internalType":"enum SmartSeal.SealStatus","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"newPrice","type":"uint256"}],"name":"setPrice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tokenIdToBarcode","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}], contractAddress); // Burada boş bir ABI kullanıldı. Gerçek ABI'nizle değiştirin.
+            const tutar=(tokenAdet*0.001).toString();
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const userAccount = accounts[0];
+            const contractMethod = contract.methods.purchaseSeal(tokenAdet);
+            const transactionDetails = {
+           from: userAccount, // İşlemi gönderen adres
+           to: contractAddress, // Akıllı kontratın adresi
+           data: contractMethod.encodeABI(),
+           value: "0x" + Web3.utils.toBN(Web3.utils.toWei(tutar, "ether")).toString(16)
+            };
+            try {
+           const txHash = await window.ethereum.request({
+           method: 'eth_sendTransaction',
+           params: [transactionDetails]
+            });
+            console.log('Transaction Hash:', txHash);
+
+       const receiptInterval = setInterval(async () => {
+   const receipt = await web3.eth.getTransactionReceipt(txHash);
+   if (receipt) {
+       clearInterval(receiptInterval); // Interval'i durdur
+       if (receipt.status) {
+           console.lerror('Transaction confirmed:', receipt);
+           // İşlem başarılı oldu
+           // Burada servoya sinyal gönderebilirsiniz.
+          
+
+       } else {
+           console.error('Transaction failed:', receipt);
+           // İşlem başarısız oldu
+       }
+   }
+}, 5000); // Her 5 saniyede bir kontrol et
+
+       } catch (error) {
+           console.error("Bir hata oluştu:", error);
+           alert('İşlem başarısız!');
+       }
+
+
+        }
+    }
+async function Muhurle(){
+    const simdikiZaman = new Date();
+    internalmesaj=simdikiZaman.toString();
+      //Cihaza Bağlantı
+      try {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 9600 });
+        document.getElementById('ConnectionDisplay').innerText = "Bağlantı başarılı";
+
+         //PublicKey Alma
+        await sleep(2000);
+        if (port && port.writable) {
+            document.getElementById('publicKeyDisplay').innerText="Barkod isteniyor";
+        const writer = port.writable.getWriter();
+
+        
+        const handshakeCommand = new Uint8Array([ 'H'.charCodeAt(0) ]);
+
+        writer.write(handshakeCommand);
+        await sleep(2000);
+        writer.releaseLock();
+        
+        // Arduino'dan gelen halka açık anahtarı oku
+        const reader = port.readable.getReader();
+        reader.read().then(({ value, done }) => {
+            if (value) {
+                const publicKey_ = new TextDecoder().decode(value);
+                
+                
+                document.getElementById('publicKeyDisplay').innerText ="Mühür Barkodu:" ;
+                document.getElementById('publicKeyDisplay2').innerText =publicKey_ ;
+                //-----------------------------------------------------------------------
+                document.getElementById('contractAddress').value=publicKey_;
+                publicKey = document.getElementById('publicKeyDisplay2').innerText;
+                //document.getElementById('contractAddress').value=publicKey_;
+            }
+            reader.releaseLock();
+            
+        });
+    } 
+        //Mesaj imzaya gönderme
+        await sleep(2000);
+        message=  internalmesaj;
+        const kodlumesaj="M"+message;
+                const dataToSend = new TextEncoder().encode(kodlumesaj );
+                const writer = port.writable.getWriter();
+                await writer.write(dataToSend);
+                writer.releaseLock();
+                document.getElementById('signatureOutput').innerText = "Challenging.......";
+                await sleep(10000);
+        //Mesaj imza geri dönme
+        const reader = port.readable.getReader();
+        reader.read().then(({ value, done }) => {
+            if (value) {
+                const signature_ = new TextDecoder().decode(value);
+                signature=signature_;
+                document.getElementById('signatureOutput').innerText = "İmza: "+signature_;
+            }
+            reader.releaseLock();
+            
+        });
+        //Validation
+        await sleep(1000);
+        console.log("Public Key:",  document.getElementById('publicKeyDisplay2').innerText);
+
+        document.getElementById('signatureCheck').innerText = "İmza Kontrolü... ";
+        var publicKey8=hexToUint8Array( document.getElementById('publicKeyDisplay2').innerText);
+        console.log("public length:", publicKey8.length);
+        var signature8=hexToUint8Array(signature);
+        console.log("Signature length:", signature8.length);
+        var messageUint8Array = new Uint8Array(message.length);
+        for (var i = 0; i < message.length; i++) {
+         messageUint8Array[i] = message.charCodeAt(i);
+            }
+           
+            await sleep(1000);
+            var isValid = nacl.sign.detached.verify(messageUint8Array, signature8, publicKey8);
+            document.getElementById('signatureCheck').innerText =isValid ? "İmza Geçerli = Mühür Orjinal" : "Invalid signature!";
+            
+            //Onchain CloseSeal
+            if (typeof window.ethereum !== 'undefined'&&port && port.writable) {
+                await sleep(2000);
+       const barcode=document.getElementById('contractAddress').value.toString();
+       const newmetadata=document.getElementById('UrunAciklama').value.toString();
+       const web3 = new Web3("https://rpc.sepolia.org");
+       const  contractAddress = "0x782cc31cec9f432594a3cf71f5ae1ebe8ad5c18c";
+       const contract = new web3.eth.Contract([{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_fromTokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"_toTokenId","type":"uint256"}],"name":"BatchMetadataUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_tokenId","type":"uint256"}],"name":"MetadataUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"newmetadata","type":"string"}],"name":"CloseSeal","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"string","name":"barcode","type":"string"}],"name":"IDofBarcode","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"OpenSeal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"barcodeToTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastAssignedTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastMintedTokenId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"metadataModified","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"newURI","type":"string"}],"name":"modifyMetadata","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"tokenURI","type":"string"},{"internalType":"string","name":"barcode","type":"string"}],"name":"preMintSeal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"price","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"publisher","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"purchaseSeal","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"sealStatus","outputs":[{"internalType":"enum SmartSeal.SealStatus","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"newPrice","type":"uint256"}],"name":"setPrice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tokenIdToBarcode","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}], contractAddress); // Burada boş bir ABI kullanıldı. Gerçek ABI'nizle değiştirin.
+       const tokenID=await contract.methods.barcodeToTokenId(barcode).call();
+       await new Promise(resolve => setTimeout(resolve, 1000)); 
+       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+       const userAccount = accounts[0];
+       const contractMethod = contract.methods.CloseSeal(tokenID,newmetadata);
+       
+       const transactionDetails = {
+           from: userAccount, // İşlemi gönderen adres
+           to: contractAddress, // Akıllı kontratın adresi
+           data: contractMethod.encodeABI(),
+           value: "0x" + Web3.utils.toBN(Web3.utils.toWei("0.001", "ether")).toString(16)
+                  };
+           try {
+           const txHash = await window.ethereum.request({
+           method: 'eth_sendTransaction',
+           params: [transactionDetails]
+       });
+       console.log('Transaction Hash:', txHash);
+
+       const receiptInterval = setInterval(async () => {
+   const receipt = await web3.eth.getTransactionReceipt(txHash);
+   if (receipt) {
+       clearInterval(receiptInterval); // Interval'i durdur
+       if (receipt.status) {
+           console.log('Transaction confirmed:', receipt);
+           // İşlem başarılı oldu
+           // Burada servoya sinyal gönderebilirsiniz.
+           if (port && port.writable) {
+       const writer = port.writable.getWriter();
+       const command = "S90"; // "S0" veya "S90" gibi bir komut oluşturur
+       const dataToSend = new TextEncoder().encode(command);
+       await writer.write(dataToSend);
+       writer.releaseLock();
+   } else {
+       alert('Lütfen cihaza bağlanın!');
+   }
+
+       } else {
+           console.error('Transaction failed:', receipt);
+           // İşlem başarısız oldu
+       }
+   }
+}, 5000); // Her 5 saniyede bir kontrol et
+
+       } catch (error) {
+           console.error("Bir hata oluştu:", error);
+           alert('İşlem başarısız!');
+       }
+
+
+       }
+
+
+
+
+
+
+        }
+        catch (error) {
+        console.error('Bağlantı başarısız:', error);
+        }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+   
+ </script>
+</body>
+</html>
