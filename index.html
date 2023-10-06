@@ -58,6 +58,24 @@ let bleServer;
 let bleService;
 let bleCharacteristic;
 
+function getQueryParam(name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            if (results == null) {
+                return null;
+            } else {
+                return decodeURI(results[1]) || 0;
+            }
+        }
+        
+        // Sayfa yüklendiğinde textbox'ın içine sorgu parametresini ekleyin
+        window.onload = function() {
+            var QRinput = getQueryParam("tokenbarkodu");
+            if (QRinput) {
+                document.getElementById("messageToSign").value = QRinput;
+            }
+        }
+  
+
 async function connectToBLEDevice() {
     try {
         // BLE cihazını keşfet ve bağlan
