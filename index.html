@@ -57,7 +57,8 @@ let bleDevice;
 let bleServer;
 let bleService;
 let bleCharacteristic;
-
+let QRbarkod;
+//QR Kod ile gelen barkodu alma
 function getQueryParam(name) {
             var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
             if (results == null) {
@@ -71,7 +72,7 @@ function getQueryParam(name) {
         window.onload = function() {
             var QRinput = getQueryParam("tokenbarkodu");
             if (QRinput) {
-                document.getElementById("messageToSign").value = QRinput;
+                QRbarkod = QRinput;
             }
         }
   
@@ -80,7 +81,7 @@ async function connectToBLEDevice() {
     try {
         // BLE cihazını keşfet ve bağlan
         bleDevice = await navigator.bluetooth.requestDevice({
-            filters: [{name: 'ESP32'}],
+            filters: [{name: QRbarkod}],
             optionalServices: ['2b5dc6e0-2727-453f-b69d-7fa0f50c7705']
         });
 
