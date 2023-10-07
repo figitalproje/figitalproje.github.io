@@ -13,6 +13,7 @@ const int PUBLIC_KEY_ADDR = PRIVATE_KEY_ADDR + PRIVATE_KEY_SIZE;
 
 uint8_t privateKey[PRIVATE_KEY_SIZE];
 uint8_t publicKey[PUBLIC_KEY_SIZE];
+String barkod;
 Servo myservo;
 
 BLEServer* pServer = NULL;
@@ -95,25 +96,39 @@ void setup() {
     for (int i = 0; i < PRIVATE_KEY_SIZE; i++) {
       EEPROM.put(PRIVATE_KEY_ADDR + i, privateKey[i]);
       EEPROM.commit();
+        if (publicKey[i] < 16) {
+      barkod += '0';
+    }
+    barkod += String(publicKey[i], HEX);
     }
     for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
       EEPROM.put(PUBLIC_KEY_ADDR + i, publicKey[i]);
       EEPROM.commit();
     }
+    
   } else {
     for (int i = 0; i < PRIVATE_KEY_SIZE; i++) {
       privateKey[i] = EEPROM.read(PRIVATE_KEY_ADDR + i);
     }
     for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
       publicKey[i] = EEPROM.read(PUBLIC_KEY_ADDR + i);
+       if (publicKey[i] < 16) {
+      barkod += '0';
     }
+    barkod += String(publicKey[i], HEX);
+      
+    }
+    
   }
 
   myservo.attach(13);
   Serial.begin(9600);
-
+  delay(1000);
+Serial.println(barkod);
   // BLE aygıtını başlat
-  BLEDevice::init("ESP32");
+  String deviceName = "Figital-" + barkod;
+  std::string stddeviceName=deviceName.c_str();
+  BLEDevice::init(stddeviceName);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());  // Callback fonksiyonlarını ayarla
   BLEService *pService = pServer->createService(SERVICE_UUID);
