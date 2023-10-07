@@ -20,26 +20,11 @@ BLECharacteristic* pHandshakeCharacteristic = NULL;
 BLECharacteristic* pSignatureCharacteristic = NULL;
 bool deviceConnected = false;
 
-onst char* SERVICE_UUID = "2b5dc6e0-2727-453f-b69d-7fa0f50c7705";
+const char* SERVICE_UUID = "2b5dc6e0-2727-453f-b69d-7fa0f50c7705";
 const char* HANDSHAKE_CHARACTERISTIC_UUID = "0abd0e1d-b033-486d-bd6f-a9423c091146";
 const char* SIGNATURE_CHARACTERISTIC_UUID ="c029a5f5-03fe-40ff-a379-896dfa677240";
 
 
-void clearEEPROM() {
-    for (int i = 0; i < EEPROM.length(); i++) {
-        EEPROM.write(i, 0xFF);
-    }
-}
-
-void asd() {
-  String elsalla;
-  int sayac = 0;
-  for (int i = 0; i < EEPROM.length(); i++) {
-    elsalla = EEPROM.read(i + 1);
-    Serial.println(elsalla);
-  }
-}
-String barkod;
 void HandShake() {
   String elsalla;
   for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
@@ -47,21 +32,22 @@ void HandShake() {
       elsalla += '0';
     }
     elsalla += String(publicKey[i], HEX);
-     
   }
   pHandshakeCharacteristic->setValue(elsalla.c_str());
   pHandshakeCharacteristic->notify();
 }
-// UUID'ler
-class ServerCallbacks: public BLEServerCallbacks {
+
+
+class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
       HandShake();  // Cihaz bağlandığında HandShake fonksiyonunu otomatik olarak çağır
-    }
+    };
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
     }
 };
+
 class SignatureCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string value = pCharacteristic->getValue();
@@ -69,9 +55,21 @@ class SignatureCallbacks: public BLECharacteristicCallbacks {
         // Gelen veriyi imzala
         uint8_t signature[64];
         Ed25519::sign(signature, privateKey, publicKey, (uint8_t*)value.c_str(), value.length());
+        String imza;
+        for (int i = 0; i < 64; i++) {
+        if (signature[i] < 16) {
+        imza += '0';
+        }
+        imza += String(signature[i], HEX);
+}
+
+       
+       
+       
+       
         
         // İmzayı karakteristiğin değeri olarak ayarla
-        pCharacteristic->setValue(signature, 64);
+        pCharacteristic->setValue(imza.c_str());
         
         // İmzayı istemciye bildir
         pCharacteristic->notify();
@@ -79,26 +77,9 @@ class SignatureCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
-class HandshakeCallbacks: public BLECharacteristicCallbacks {
-     
-      HandShake();  // Cihaz bağlandığında HandShake fonksiyonunu otomatik olarak çağır
-   
-    
-};
 
-void HandShake0() {
-  String elsalla = "Private Key: ";
-  for (int i = 0; i < PRIVATE_KEY_SIZE; i++) {
-    if (privateKey[i] < 16) {
-      elsalla += '0';
-    }
-    elsalla += String(privateKey[i], HEX);
-  }
-  Serial.println(elsalla);
-}
 
 void setup() {
-  //clearEEPROM();
   EEPROM.begin(512);
   bool keyExists = true;
   for (int i = 0; i < PRIVATE_KEY_SIZE; i++) {
@@ -129,51 +110,52 @@ void setup() {
   }
 
   myservo.attach(13);
- // Serial.begin(115200);
-// BLE aygıtını başlat
-  BLEDevice::init("ESP32_BLE");
-  BLEServer* pServer = BLEDevice::createServer();
-  BLEService* pService = pServer->createService(SERVICE_UUID);
+  Serial.begin(9600);
 
-  // İmza karakteristiğini oluştur
-  pSignatureCharacteristic = pService->createCharacteristic(
+  // BLE aygıtını başlat
+  BLEDevice::init("ESP32");
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());  // Callback fonksiyonlarını ayarla
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+  pHandshakeCharacteristic = pService->createCharacteristic(
+                     HANDSHAKE_CHARACTERISTIC_UUID,
+                     BLECharacteristic::PROPERTY_READ   |
+                     BLECharacteristic::PROPERTY_WRITE  |
+                     BLECharacteristic::PROPERTY_NOTIFY |
+                     BLECharacteristic::PROPERTY_INDICATE
+                   );
+  pHandshakeCharacteristic->addDescriptor(new BLE2902());
+
+pSignatureCharacteristic = pService->createCharacteristic(
                      SIGNATURE_CHARACTERISTIC_UUID,
                      BLECharacteristic::PROPERTY_READ   |
                      BLECharacteristic::PROPERTY_WRITE  |
                      BLECharacteristic::PROPERTY_NOTIFY
                    );
-  pSignatureCharacteristic->setCallbacks(new SignatureCallbacks());
-  pSignatureCharacteristic->addDescriptor(new BLE2902());
+pSignatureCharacteristic->setCallbacks(new SignatureCallbacks());
+pSignatureCharacteristic->addDescriptor(new BLE2902());
 
-  // Handshake karakteristiğini oluştur
-  pHandshakeCharacteristic = pService->createCharacteristic(
-                     HANDSHAKE_CHARACTERISTIC_UUID,
-                     BLECharacteristic::PROPERTY_READ
-                   );
-  pHandshakeCharacteristic->setCallbacks(new HandshakeCallbacks());
 
-  // Servisi başlat
   pService->start();
-
-  // BLE reklamını başlat
-  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
+  BLEAdvertising *pAdvertising = pServer->getAdvertising();
   pAdvertising->start();
 }
 
+
+
 void loop() {
   if (deviceConnected) {
-    std::string rxValue = pCharacteristic->getValue();
+    std::string rxValue = pHandshakeCharacteristic->getValue();
     if (rxValue.length() > 0) {
       char command = rxValue[0];
       if (command == 'H') {
         HandShake();
       }
       if (command == 'P') {
-        HandShake0();
+       // HandShake0();
       }
       if (command == 'A') {
-        asd();
+       // asd();
       }
       if (command == 'S') {
         String posStr = rxValue.substr(1).c_str();
@@ -191,8 +173,8 @@ void loop() {
           }
           signatureString += String(signature[i], HEX);
         }
-        pCharacteristic->setValue(signatureString.c_str());
-        pCharacteristic->notify();
+        pHandshakeCharacteristic->setValue(signatureString.c_str());
+        pHandshakeCharacteristic->notify();
       }
     }
   }
