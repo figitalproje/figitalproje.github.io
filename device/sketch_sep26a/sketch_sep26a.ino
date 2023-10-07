@@ -126,7 +126,7 @@ void setup() {
   delay(1000);
 Serial.println(barkod);
   // BLE aygıtını başlat
-  String deviceName = "Figital-" + barkod;
+  String deviceName = "figi" + barkod;
   std::string stddeviceName=deviceName.c_str();
   BLEDevice::init(stddeviceName);
   pServer = BLEDevice::createServer();
