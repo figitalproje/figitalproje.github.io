@@ -83,7 +83,7 @@ async function connectToBLEDevice() {
     try {
         // BLE cihazını keşfet ve bağlan
         bleDevice = await navigator.bluetooth.requestDevice({
-           //filters: [{name: QRbarkod}],
+           acceptAllDevices:true,
             optionalServices: ['2b5dc6e0-2727-453f-b69d-7fa0f50c7705']
         });
 
