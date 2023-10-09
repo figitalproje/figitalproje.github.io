@@ -74,7 +74,7 @@ function getQueryParam(name) {
             if (QRinput) {
                 QRbarkod = QRinput;
             }else{
-                QRbarkod="ESP32";
+                QRbarkod="duz";
             }
         }
   
@@ -82,10 +82,17 @@ function getQueryParam(name) {
 async function connectToBLEDevice() {
     try {
         // BLE cihazını keşfet ve bağlan
+        if (QRbarkod=="duz"){
         bleDevice = await navigator.bluetooth.requestDevice({
            acceptAllDevices:true,
             optionalServices: ['2b5dc6e0-2727-453f-b69d-7fa0f50c7705']
+        });}
+        else{
+            bleDevice = await navigator.bluetooth.requestDevice({
+           filters:[{name:QRbarkod}],
+            optionalServices: ['2b5dc6e0-2727-453f-b69d-7fa0f50c7705']
         });
+        }
 
         // GATT sunucusuna bağlan
         bleServer = await bleDevice.gatt.connect();

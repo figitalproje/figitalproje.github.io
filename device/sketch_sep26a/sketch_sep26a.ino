@@ -80,7 +80,7 @@ class SignatureCallbacks: public BLECharacteristicCallbacks {
 
 String publicKeyToString(uint8_t* publicKey) {
   String result;
-  for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
+  for (int i = 0; i < PUBLIC_KEY_SIZE/8; i++) {
     if (publicKey[i] < 16) {
       result += '0';
     }
@@ -108,10 +108,7 @@ void setup() {
     for (int i = 0; i < PRIVATE_KEY_SIZE; i++) {
       EEPROM.put(PRIVATE_KEY_ADDR + i, privateKey[i]);
       EEPROM.commit();
-        if (publicKey[i] < 16) {
-      barkod += '0';
-    }
-    barkod += String(publicKey[i], HEX);
+      
     }
     for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
       EEPROM.put(PUBLIC_KEY_ADDR + i, publicKey[i]);
@@ -124,10 +121,7 @@ void setup() {
     }
     for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
       publicKey[i] = EEPROM.read(PUBLIC_KEY_ADDR + i);
-       if (publicKey[i] < 16) {
-      barkod += '0';
-    }
-    barkod += String(publicKey[i], HEX);
+      
       
     }
     
@@ -136,15 +130,16 @@ void setup() {
   myservo.attach(13);
   Serial.begin(9600);
   delay(1000);
-Serial.println(barkod);
-String deviceName = "figi" + publicKeyToString(publicKey);
+
+String deviceName = "BARKOD" + publicKeyToString(publicKey);
 BLEDevice::init(deviceName.c_str());
+Serial.println(deviceName);
 
 
   // BLE aygıtını başlat
  
  
- 
+  //BLEDevice::init(stddeviceName);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());  // Callback fonksiyonlarını ayarla
   BLEService *pService = pServer->createService(SERVICE_UUID);
@@ -169,13 +164,7 @@ pSignatureCharacteristic->addDescriptor(new BLE2902());
 
   pService->start();
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
-pAdvertising->stop();  // Reklamı durdur
-BLEAdvertisementData advertisingData = BLEAdvertisementData();
-advertisingData.setName(deviceName.c_str());
-
-pAdvertising->setAdvertisementData(advertisingData);
-pAdvertising->start();
-
+  pAdvertising->start();
 }
 
 
