@@ -169,7 +169,13 @@ pSignatureCharacteristic->addDescriptor(new BLE2902());
 
   pService->start();
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  pAdvertising->start();
+pAdvertising->stop();  // Reklamı durdur
+BLEAdvertisementData advertisingData = BLEAdvertisementData();
+advertisingData.setName(deviceName.c_str());
+
+pAdvertising->setAdvertisementData(advertisingData);
+pAdvertising->start();
+
 }
 
 
