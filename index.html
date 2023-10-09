@@ -72,9 +72,9 @@ function getQueryParam(name) {
         window.onload = function() {
             var QRinput = getQueryParam("tokenbarkodu");
             if (QRinput) {
-                QRbarkod = "figi"+QRinput;
+                QRbarkod = QRinput;
             }else{
-                QRbarkod="figi";
+                QRbarkod="ESP32";
             }
         }
   
