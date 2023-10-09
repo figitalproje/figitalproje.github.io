@@ -78,6 +78,18 @@ class SignatureCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
+String publicKeyToString(uint8_t* publicKey) {
+  String result;
+  for (int i = 0; i < PUBLIC_KEY_SIZE; i++) {
+    if (publicKey[i] < 16) {
+      result += '0';
+    }
+    result += String(publicKey[i], HEX);
+  }
+  return result;
+}
+
+
 
 
 void setup() {
@@ -125,10 +137,14 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
 Serial.println(barkod);
+String deviceName = "figi" + publicKeyToString(publicKey);
+BLEDevice::init(deviceName.c_str());
+
+
   // BLE aygıtını başlat
-  String deviceName = "figi"; //+ barkod;
-  std::string stddeviceName=deviceName.c_str();
-  BLEDevice::init(stddeviceName);
+ 
+ 
+ 
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());  // Callback fonksiyonlarını ayarla
   BLEService *pService = pServer->createService(SERVICE_UUID);
