@@ -72,7 +72,7 @@ function getQueryParam(name) {
         window.onload = function() {
             var QRinput = getQueryParam("tokenbarkodu");
             if (QRinput) {
-                QRbarkod = QRinput;
+                QRbarkod = "figi"+QRinput;
             }else{
                 QRbarkod="figi";
             }
