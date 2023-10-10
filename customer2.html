@@ -10,14 +10,14 @@
 </head>
 <body>
     <br>
-    <button onclick="MusteriGirisi()">Müşteri Girişi</button>
-    <button onclick="FirmaGirisi()">Firma Girişi</button>
-    <br><br><br>
-    <h2>Mühür Testi</h2>
+    <button onclick="Home()">Anasayfa</button>
     
-    <textarea id="messageToSign" rows="2" cols="40" placeholder="Orjinallik ispatı için text girin "></textarea><br>
+    <br><br><br>
+    <h2>Kutu Açma</h2>
+    
    
-    <button onclick="connectToBLEDevice()">Sorgula</button>
+   
+    <button onclick="connectToBLEDevice()">Bağlan ve AÇ</button>
    
   
     <br><p id="ConnectionDisplay"></p>
@@ -50,8 +50,8 @@ let port;
 let publicKey;
 let signature;
 let message;
-function FirmaGirisi(){ window.location.href = "/b2b.html";}
-function MusteriGirisi(){ window.location.href = "/customer.html";}
+function Home(){ window.location.href = "/index.html";}
+
      
 let bleDevice;
 let bleServer;
@@ -117,7 +117,9 @@ async function connectToBLEDevice() {
         document.getElementById('publicKeyDisplay2').innerText=publicKey;
         //mesaj gönderme
         await sleep(2000);
-        message = document.getElementById("messageToSign").value;
+        const simdikiZaman = new Date();
+        message =simdikiZaman.toString();
+        
         bleCharacteristic = await bleService.getCharacteristic('c029a5f5-03fe-40ff-a379-896dfa677240');
         const dataBuffer = new TextEncoder().encode(message);
         await bleCharacteristic.writeValue(dataBuffer);
