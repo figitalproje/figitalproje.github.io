@@ -46,6 +46,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
     };
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
+       pServer->getAdvertising()->start();
     }
 };
 
