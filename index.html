@@ -77,6 +77,13 @@ function getQueryParam(name) {
                 QRbarkod="duz";
             }
         }
+        window.onbeforeunload = function() {
+    if (bleDevice && bleDevice.gatt.connected) {
+        bleDevice.gatt.disconnect();
+        console.log('BLE cihazıyla bağlantı kesildi.');
+    }
+};
+
   
 
 async function connectToBLEDevice() {

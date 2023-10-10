@@ -64,11 +64,6 @@ class SignatureCallbacks: public BLECharacteristicCallbacks {
         imza += String(signature[i], HEX);
 }
 
-       
-       
-       
-       
-        
         // İmzayı karakteristiğin değeri olarak ayarla
         pCharacteristic->setValue(imza.c_str());
         
@@ -170,38 +165,5 @@ pSignatureCharacteristic->addDescriptor(new BLE2902());
 
 
 void loop() {
-  if (deviceConnected) {
-    std::string rxValue = pHandshakeCharacteristic->getValue();
-    if (rxValue.length() > 0) {
-      char command = rxValue[0];
-      if (command == 'H') {
-        HandShake();
-      }
-      if (command == 'P') {
-       // HandShake0();
-      }
-      if (command == 'A') {
-       // asd();
-      }
-      if (command == 'S') {
-        String posStr = rxValue.substr(1).c_str();
-        int pos = posStr.toInt();
-        myservo.write(pos);
-      }
-      if (command == 'M') {
-        String mesaj = rxValue.substr(1).c_str();
-        uint8_t signature[64];
-        Ed25519::sign(signature, privateKey, publicKey, mesaj.c_str(), mesaj.length());
-        String signatureString;
-        for (int i = 0; i < 64; i++) {
-          if (signature[i] < 16) {
-            signatureString += '0';
-          }
-          signatureString += String(signature[i], HEX);
-        }
-        pHandshakeCharacteristic->setValue(signatureString.c_str());
-        pHandshakeCharacteristic->notify();
-      }
-    }
-  }
+ 
 }
