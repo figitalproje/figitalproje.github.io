@@ -95,6 +95,7 @@ async function TumTokenGoster() {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAccount = accounts[0];
    const adet=await contract.methods.balanceOf(userAccount).call();
+   await sleep(1000);
    contract.getPastEvents('PublisherTokenLog', {
     filter: { publisherAddress: userAccount },
     fromBlock: 0,
@@ -111,9 +112,10 @@ async function TumTokenGoster() {
 });
 
 for (let index = 0; index < TokenIDler.length; index++) {
-    barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index].call());
-    sahipler[index]=await contract.methods.ownerOf(TokenIDler[index].call());
-    statusler[index]=await contract.methods.sealStatus(TokenIDler[index].call());
+    await sleep(1000);
+    barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index].call());await sleep(1000);
+    sahipler[index]=await contract.methods.ownerOf(TokenIDler[index].call());await sleep(1000);
+    statusler[index]=await contract.methods.sealStatus(TokenIDler[index].call());await sleep(1000);
     
 }
 
