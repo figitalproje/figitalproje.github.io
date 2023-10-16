@@ -95,7 +95,7 @@ async function TumTokenGoster() {
     await sleep(1000);
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAccount = accounts[0];
-  
+  console.log(userAccount);
     const events = await contract.getPastEvents('PublisherTokenLog', {
         filter: { publisherAddress: userAccount },
         fromBlock: 0,
