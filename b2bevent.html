@@ -95,8 +95,8 @@ async function getTokensByPublisher() {
     try {
         const events = await contract.getPastEvents('PublisherTokenLog', {
             filter: { publisherAddress: userAccount },
-            fromBlock: 0,
-            toBlock: 'latest'
+            fromBlock: 4486744,
+            toBlock: 4486746
         });
 
         console.log("Events fetched:", events); // Event'lerin doğru bir şekilde getirilip getirilmediğini kontrol etmek için
