@@ -107,7 +107,7 @@ for (let index = 0; index < adet; index++) {
     TokenIDler[index]=await contract.methods.tokenOfOwnerByIndex(userAccount,index).call();
     await new Promise(resolve => setTimeout(resolve, 1000)); 
     console.log("TokenID: "+TokenIDler[index]);
-    try {
+    try { await new Promise(resolve => setTimeout(resolve, 1000));
             barkodlar[index] = await contract.methods.tokenIdToBarcode(TokenIDler[index]).call();
             await new Promise(resolve => setTimeout(resolve, 1000)); 
             console.log("Barkod:", barkodlar[index]);
