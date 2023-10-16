@@ -33,7 +33,7 @@
     <p id="address"></p>
     <button onclick="loginWithMetamask()">Login with Metamask</button>
     <button onclick="TumTokenGoster()">Tokenları göster</button>
-    <button onclick="getTokensByPublisher()">EVENT göster</button>
+    <button onclick="EVENT()">EVENT göster</button>
     <div id="tabloYeri"></div>
     <br><br><br>
   
@@ -109,9 +109,10 @@ async function getTokensByPublisher() {
 }
 
  // Publisher adresini buraya ekleyin
+ async function EVENT(){
 getTokensByPublisher().then(tokenIds => {
     console.log(`Publisher ${userAccount} has tokens:`, tokenIds);
-});
+});}
   
 
 async function TumTokenGoster() {
