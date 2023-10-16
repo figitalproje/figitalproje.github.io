@@ -101,7 +101,7 @@ async function TumTokenGoster() {
    
 
 await sleep(5000);
-for (let index = 0; index < adet; index++) {
+for (let index = 1; index < adet; index++) {
     await new Promise(resolve => setTimeout(resolve, 1000));  
     TokenIDler[index]=await contract.methods.tokenOfOwnerByIndex(userAccount,index).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
     barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index]).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
