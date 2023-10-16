@@ -86,13 +86,14 @@ async function loginWithMetamask() {
 async function TumTokenGoster() {
    
     
-    try {const Web3 = require('web3');
+    try {
+        const Web3 = require("web3");
 
 // Infura API anahtarınızı buraya ekleyin
-const INFURA_API_KEY = '8bb2ee2ce6ae49cf92797f8a0082d0f0';
+const INFURA_API_KEY = "8bb2ee2ce6ae49cf92797f8a0082d0f0";
 
 // Infura RPC URL'sini oluşturun (Mainnet için)
-const INFURA_RPC_URL = `https://sepolia.infura.io/v3/8bb2ee2ce6ae49cf92797f8a0082d0f0`;
+const INFURA_RPC_URL = "https://sepolia.infura.io/v3/8bb2ee2ce6ae49cf92797f8a0082d0f0";
 
 // Web3 ile Infura üzerinden bağlantı kurun
 const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_RPC_URL));
