@@ -8,6 +8,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.4/dist/web3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
     <style>
         /* Basit bir tablo stilizasyonu */
         table {
@@ -32,8 +34,10 @@
     <button onclick="Home()">Anasayfa</button>
     <p id="address"></p>
     <button onclick="loginWithMetamask()">Login with Metamask</button>
-    <button onclick="TumTokenGoster()">Tokenları göster</button>
-    <button onclick="EVENT()">EVENT göster</button>
+    <button onclick="TumTokenGoster()">Tümünü Listele</button>
+    <button onclick="PopulateFromChain()">PopulateFromChain</button>
+    <input type="file" id="csvFile" onchange="handleCSVFile()" />
+
     <div id="tabloYeri"></div>
     <br><br><br>
   
@@ -110,7 +114,7 @@ async function getTokensByPublisher() {
 }
 
  // Publisher adresini buraya ekleyin
- async function EVENT(){
+ async function PopulateFromChain(){
 getTokensByPublisher().then(TokenIDler => {
     console.log(`Publisher ${userAccount} has tokens:`, TokenIDler);
     
@@ -161,7 +165,22 @@ document.getElementById("tabloYeri").innerHTML = tablo;
 }
 
 
-    
+function handleCSVFile() {
+    const file = document.getElementById('csvFile').files[0];
+    Papa.parse(file, {
+        complete: function(results) {
+            const numbersArray = [];
+            for(let i = 0; i < results.data.length; i++) {
+                // Her satırdaki ilk sütunu al (sadece bir sütun varsayılmıştır)
+                const number = results.data[i][0];
+                if(number) {
+                    numbersArray.push(Number(number));
+                }
+            }
+            console.log(numbersArray);
+        }
+    });
+} 
 
 
 
