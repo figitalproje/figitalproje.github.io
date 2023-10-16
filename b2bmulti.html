@@ -104,10 +104,19 @@ await sleep(5000);
 for (let index = 0; index < adet; index++) {
     await new Promise(resolve => setTimeout(resolve, 1000));  
     TokenIDler[index]=await contract.methods.tokenOfOwnerByIndex(userAccount,index).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
+    console.log(TokenIDler[index]);
     barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index]).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
+    console.log(barkodlar[index]);
+
     sahipler[index]=await contract.methods.ownerOf(TokenIDler[index]).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
+    console.log(sahipler[index]);
+
     statusler[index]=await contract.methods.sealStatus(TokenIDler[index]).call();await new Promise(resolve => setTimeout(resolve, 1000)); 
-    
+    console.log(statusler[index]);
+    console.log("TokenIDler Dizi Uzunluğu:", TokenIDler.length);
+console.log("Barkodlar Dizi Uzunluğu:", barkodlar.length);
+console.log("Sahipler Dizi Uzunluğu:", sahipler.length);
+console.log("Statusler Dizi Uzunluğu:", statusler.length);
 }
 
 
