@@ -98,10 +98,10 @@ async function TumTokenGoster() {
    const adet=await contract.methods.balanceOf(userAccount).call();
    console.log(adet);
    await sleep(1000);
-   contract.getPastEvents('PublisherTokenLog', {
-    filter: { publisherAddress: userAccount },
-    fromBlock: 4486774,
-    toBlock: 4486785
+   contract.getPastEvents('0xa5c64d148a2b6607310a271053856de69fcf7973a174417a4f8778306103b8c7', {
+    filter: { publisherAddress: '0x000000000000000000000000a8576e9b752053de61b0b9bc3501003b9fd529e5' },
+    fromBlock:0,
+    toBlock: 'last'
 }).then(events => {
     var i=0;
     for (let event of events) {
@@ -115,10 +115,10 @@ async function TumTokenGoster() {
 
 await sleep(5000);
 for (let index = 0; index < TokenIDler.length; index++) {
-    await sleep(1000);
-    barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index].call());await sleep(1000);
-    sahipler[index]=await contract.methods.ownerOf(TokenIDler[index].call());await sleep(1000);
-    statusler[index]=await contract.methods.sealStatus(TokenIDler[index].call());await sleep(1000);
+    
+    barkodlar[index]=await contract.methods.tokenIdtoBarcode(TokenIDler[index].call());
+    sahipler[index]=await contract.methods.ownerOf(TokenIDler[index].call());
+    statusler[index]=await contract.methods.sealStatus(TokenIDler[index].call())
     
 }
 
