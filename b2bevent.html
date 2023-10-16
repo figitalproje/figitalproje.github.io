@@ -101,8 +101,8 @@ async function getTokensByPublisher() {
 
         console.log("Events fetched:", events); // Event'lerin doğru bir şekilde getirilip getirilmediğini kontrol etmek için
 
-        const tokenIds = events.map(event => event.returnValues.tokenId);
-        return tokenIds;
+        TokenIDler = events.map(event => event.returnValues.tokenId);
+        return TokenIDler;
     } catch (error) {
         console.error("Error occurred:", error); // Hata oluştuğunda hatanın detaylarını yazdırmak için
     }
@@ -110,9 +110,46 @@ async function getTokensByPublisher() {
 
  // Publisher adresini buraya ekleyin
  async function EVENT(){
-getTokensByPublisher().then(tokenIds => {
-    console.log(`Publisher ${userAccount} has tokens:`, tokenIds);
-});}
+getTokensByPublisher().then(TokenIDler => {
+    console.log(`Publisher ${userAccount} has tokens:`, TokenIDler);
+    
+});
+for (let index = 0; index < TokenIDler.length; index++) {
+    
+    barkodlar[index]=await contract.methods.tokenIdToBarcode(TokenIDler[index].call());
+    sahipler[index]=await contract.methods.ownerOf(TokenIDler[index].call());
+    statusler[index]=await contract.methods.sealStatus(TokenIDler[index].call())
+    
+}
+let tablo = "<table>";
+
+// Başlık ekleyelim (opsiyonel)
+tablo += "<thead><tr><th>TokenID</th><th>Barkod</th><th>Durum</th><th>Sahibi</th></tr></thead>";
+
+// Tablo içeriğini oluştur
+tablo += "<tbody>";
+for (let i = 0; i < TokenIDler.length; i++) {
+    tablo += "<tr>";
+    tablo += "<td>" + TokenIDler[i] + "</td>";
+    tablo += "<td>" + barkodlar[i] + "</td>";
+    tablo += "<td>" + statusler[i] + "</td>";
+    if (sahipler[i==userAccount]) {
+        tablo+="<td>" + "Firmada" + "</td>";
+    } else {
+        tablo+="<td>" + "Firmada Değil" + "</td>";
+    }
+    tablo += "</tr>";
+}
+tablo += "</tbody>";
+
+// Tabloyu tamamla
+tablo += "</table>";
+
+// Tabloyu HTML belgesine ekleyin (örneğin, "tabloYeri" ID'li bir div içerisine)
+document.getElementById("tabloYeri").innerHTML = tablo;
+
+
+}
   
 
 async function TumTokenGoster() {

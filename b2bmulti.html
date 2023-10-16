@@ -144,7 +144,7 @@ for (let i = 0; i < TokenIDler.length; i++) {
     tablo += "<td>" + TokenIDler[i] + "</td>";
     tablo += "<td>" + barkodlar[i] + "</td>";
     tablo += "<td>" + statusler[i] + "</td>";
-    if (sahipler[i]==userAccount) {
+    if (sahipler[i].toLowerCase()==userAccount.toLowerCase()) {
         tablo+="<td>" + "Firmada" + "</td>";
     } else {
         tablo+="<td>" + "Firmada Değil" + "</td>";
