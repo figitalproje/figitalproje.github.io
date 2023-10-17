@@ -40,6 +40,11 @@
     <h3>İade edilenleri resetle</h3>
     <input type="file" id="csvFile" onchange="handleCSVFile()" />
     <button onclick="Resetle()">Yüklenenleri Resetle</button>
+    <br>
+    <h3>Mühürleme</h3>
+    <input type="file" id="csvFileMuhur" onchange="handleCSVFileMuhur()" />
+    <textarea id="metadataURL" rows="2" cols="20" placeholder="Metadata URL "></textarea>
+    <button onclick="Muhurle()">Yüklenenleri Mühürle</button>
 
     <div id="tabloYeri"></div>
     <br><br><br>
@@ -168,6 +173,7 @@ document.getElementById("tabloYeri").innerHTML = tablo;
 }
 
 let ResetNumbers=[];
+let CloseNumbers=[];
 function handleCSVFile() {
     const file = document.getElementById('csvFile').files[0];
     Papa.parse(file, {
@@ -214,7 +220,53 @@ const transactionDetails = {
        }
 
 }
+function handleCSVFileMuhur() {
+    const file = document.getElementById('csvFileMuhur').files[0];
+    Papa.parse(file, {
+        complete: function(results) {
+            
+            for(let i = 0; i < results.data.length; i++) {
+                // Her satırdaki ilk sütunu al (sadece bir sütun varsayılmıştır)
+                const number = results.data[i][0];
+                if(number) {
+                    CloseNumbers.push(Number(number));
+                }
+            }
+            console.log(CloseNumbers);
+        }
+    });
+} 
+async function Muhurle(){
+    metadataurl = document.getElementById("metadataURL").value;
+const contractMethod=contract.methods.TopluCloseSeal(CloseNumbers,metadataurl);
+const transactionDetails = {
+           from: userAccount, // İşlemi gönderen adres
+           to: contractAddress, // Akıllı kontratın adresi
+           data: contractMethod.encodeABI(),
+          
+                  };
+                  try {
+                    const txHash = await window.ethereum.request({ method: 'eth_sendTransaction',params: [transactionDetails]});
+                    console.log('Transaction Hash:', txHash);
+                const receiptInterval = setInterval(async () => {
+   const receipt = await web3.eth.getTransactionReceipt(txHash);
+   if (receipt) {
+       clearInterval(receiptInterval); // Interval'i durdur
+       if (receipt.status) {
+           console.log('Transaction confirmed:', receipt);
+        } else {
+           console.error('Transaction failed:', receipt);
+           // İşlem başarısız oldu
+       }
+   }
+}, 5000); // Her 5 saniyede bir kontrol et
 
+       } catch (error) {
+           console.error("Bir hata oluştu:", error);
+           alert('İşlem başarısız!');
+       }
+
+}
 
 
 </script>
