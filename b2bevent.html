@@ -34,8 +34,10 @@
     <button onclick="Home()">Anasayfa</button>
     <p id="address"></p>
     <button onclick="loginWithMetamask()">Login with Metamask</button>
-    <button onclick="TumTokenGoster()">Tümünü Listele</button>
     <button onclick="PopulateFromChain()">PopulateFromChain</button>
+    <button onclick="TumTokenGoster()">Tümünü Listele</button>
+    <br>
+    <h3>İade edilenleri resetle</h3>
     <input type="file" id="csvFile" onchange="handleCSVFile()" />
 
     <div id="tabloYeri"></div>
@@ -164,24 +166,53 @@ document.getElementById("tabloYeri").innerHTML = tablo;
    
 }
 
-
+let ResetNumbers=[];
 function handleCSVFile() {
     const file = document.getElementById('csvFile').files[0];
     Papa.parse(file, {
         complete: function(results) {
-            const numbersArray = [];
+            
             for(let i = 0; i < results.data.length; i++) {
                 // Her satırdaki ilk sütunu al (sadece bir sütun varsayılmıştır)
                 const number = results.data[i][0];
                 if(number) {
-                    numbersArray.push(Number(number));
+                    ResetNumbers.push(Number(number));
                 }
             }
-            console.log(numbersArray);
+            console.log(ResetNumbers);
         }
     });
 } 
+async function Resetle(){
+const contractMethod=contract.methods.Topluresetle(ResetNumbers);
+const transactionDetails = {
+           from: userAccount, // İşlemi gönderen adres
+           to: contractAddress, // Akıllı kontratın adresi
+           data: contractMethod.encodeABI(),
+          
+                  };
+                  try {
+                    const txHash = await window.ethereum.request({ method: 'eth_sendTransaction',params: [transactionDetails]});
+                    console.log('Transaction Hash:', txHash);
+                const receiptInterval = setInterval(async () => {
+   const receipt = await web3.eth.getTransactionReceipt(txHash);
+   if (receipt) {
+       clearInterval(receiptInterval); // Interval'i durdur
+       if (receipt.status) {
+           console.log('Transaction confirmed:', receipt);
+        } else {
+           console.error('Transaction failed:', receipt);
+           // İşlem başarısız oldu
+       }
+   }
+}, 5000); // Her 5 saniyede bir kontrol et
 
+       } catch (error) {
+           console.error("Bir hata oluştu:", error);
+           alert('İşlem başarısız!');
+       }
+
+}
 
 
 
