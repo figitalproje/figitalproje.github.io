@@ -109,6 +109,7 @@ async function getTokensByPublisher() {
     console.log("getTokensByPublisher function started"); // Fonksiyonun başladığını kontrol etmek için
 
     try {
+        await sleep(1000);
         const events = await contract.getPastEvents('PublisherTokenLog', {
             filter: { publisherAddress: userAccount },
             fromBlock: 4486744,
