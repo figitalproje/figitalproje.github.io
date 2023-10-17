@@ -71,6 +71,7 @@ let TokenIDler = [];
 let barkodlar=[];
 let sahipler=[];
 let statusler=[];
+let metadataurl;
 
 
 function Home(){ window.location.href = "/index.html";}
@@ -237,7 +238,7 @@ function handleCSVFileMuhur() {
     });
 } 
 async function Muhurle(){
-    metadataurl = document.getElementById("metadataURL").value;
+     metadataurl = document.getElementById("metadataURL").value;
 const contractMethod=contract.methods.TopluCloseSeal(CloseNumbers,metadataurl);
 const transactionDetails = {
            from: userAccount, // İşlemi gönderen adres
