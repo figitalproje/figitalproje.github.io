@@ -240,11 +240,12 @@ function handleCSVFileMuhur() {
 async function Muhurle(){
      metadataurl = document.getElementById("metadataURL").value;
 const contractMethod=contract.methods.TopluCloseSeal(CloseNumbers,metadataurl);
+const totalvalue=0.001*close.length();
 const transactionDetails = {
            from: userAccount, // İşlemi gönderen adres
            to: contractAddress, // Akıllı kontratın adresi
            data: contractMethod.encodeABI(),
-          
+           value: "0x" + Web3.utils.toBN(Web3.utils.toWei(totalvalue.toString(), "ether")).toString(16)
                   };
                   try {
                     const txHash = await window.ethereum.request({ method: 'eth_sendTransaction',params: [transactionDetails]});
