@@ -12,6 +12,8 @@
     <br>
     <button onclick="MusteriGirisi()">Müşteri Girişi</button>
     <button onclick="FirmaGirisi()">Firma Girişi</button>
+    <textarea id="degergir" rows="2" cols="40" placeholder="Yeni Değer"></textarea><br>
+    <button onclick="Kalibre()">Kalibre</button>
     <br><br><br>
     <h2>Mühür Testi</h2>
     
@@ -50,6 +52,7 @@ let port;
 let publicKey;
 let signature;
 let message;
+let deger;
 function FirmaGirisi(){ window.location.href = "/b2bevent.html";}
 function MusteriGirisi(){ window.location.href = "/customer2.html";}
      
@@ -84,7 +87,23 @@ function getQueryParam(name) {
     }
 };
 
-  
+  async function Kalibre(){
+    bleDevice = await navigator.bluetooth.requestDevice({
+           acceptAllDevices:true,
+            optionalServices: ['2b5dc6e0-2727-453f-b69d-7fa0f50c7705']
+        });
+        bleServer = await bleDevice.gatt.connect();
+
+        // Servise bağlan
+        bleService = await bleServer.getPrimaryService('2b5dc6e0-2727-453f-b69d-7fa0f50c7705');
+
+        // Özelliğe bağlan
+       deger=document.getElementById("degergir").value;
+        bleCharacteristic = await bleService.getCharacteristic('ca9d304b-1afc-4006-94fc-89b37d127c6c');
+        const dataBufferservo = new TextEncoder().encode(deger);
+        await bleCharacteristic.writeValue(dataBufferservo);
+
+  }
 
 async function connectToBLEDevice() {
     try {
