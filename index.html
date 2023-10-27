@@ -143,6 +143,11 @@ async function connectToBLEDevice() {
             await sleep(1000);
             var isValid = nacl.sign.detached.verify(messageUint8Array, signature8, publicKey8);
             document.getElementById('signatureCheck').innerText =isValid ? "İmza Geçerli = Mühür Orjinal" : "Invalid signature!";
+            // BLE kapatma garantisi
+            bleCharacteristic = await bleService.getCharacteristic('ca9d304b-1afc-4006-94fc-89b37d127c6c');
+        const dataBufferservo = new TextEncoder().encode("150");
+        await bleCharacteristic.writeValue(dataBufferservo);
+        await sleep(2000);
     } catch (error) {
         console.log('Mühür Hatalı');
     }

@@ -181,7 +181,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
            // İşlem başarılı oldu
            // Burada servoya sinyal gönderebilirsiniz.
            bleCharacteristic = await bleService.getCharacteristic('ca9d304b-1afc-4006-94fc-89b37d127c6c');
-        const dataBufferservo = new TextEncoder().encode("0");
+        const dataBufferservo = new TextEncoder().encode("100");
         await bleCharacteristic.writeValue(dataBufferservo);
         await sleep(2000);
 
