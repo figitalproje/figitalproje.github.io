@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Başlık</title>
+    <!-- Stil dosyaları ve JavaScript dosyaları için bağlantılar buraya eklenebilir -->
+</head>
+<body>
+    <!-- Sayfa içeriği buraya gelecek -->
+<script>
+    const { google } = require('googleapis');
+const sheets = google.sheets('v4');
+
+const credentials = require('./credentials.json');
+
+const auth = new google.auth.JWT(
+  credentials.client_email,
+  null,
+  credentials.private_key,
+  ['https://www.googleapis.com/auth/spreadsheets']
+);
+
+auth.authorize((err, tokens) => {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  // API isteklerinizi burada yapabilirsiniz
+  // Örneğin, bir Google Sheets dosyasından veri okuma
+  sheets.spreadsheets.values.get({
+    auth: auth,
+    spreadsheetId: '1doC_P3WjGdEKrQ_CKpZtxpitM0b62F_QNQg_yZwwhBk',
+    range: 'Sheet1!A1:C5',
+  }, (err, res) => {
+    if (err) {
+      console.log('API hatası:', err);
+      return;
+    }
+    console.log(res.data.values);
+  });
+});
+</script>
+</body>
+</html>
