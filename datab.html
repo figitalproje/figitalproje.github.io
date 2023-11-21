@@ -5,26 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sheets API Örneği</title>
-    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <h1>Google Sheets Verileri</h1>
-    <button id="authorize_button" style="display: none;">Giriş Yap</button>
-    <button id="signout_button" style="display: none;">Çıkış Yap</button>
+    <div id="g_id_onload"
+         data-client_id="720944686557-lqqsi5e1j9sts6rtht6ljit27q4b9r14.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="$ {button.text}"
+         data-size="large">
+    </div>
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
     <script>
-      /**
-       *  Google API JavaScript kütüphanesini yükler ve başlatır.
-       */
-      function handleClientLoad() {
-        gapi.load('client:auth2', initClient);
+      function handleCredentialResponse(response) {
+        // Kullanıcı kimlik bilgilerini işle
+        console.log("Encoded JWT ID token: " + response.credential);
       }
 
-      /**
-       *  API istemcisini ve OAuth2 kütüphanesini başlatır.
-       *  Burada API anahtarınızı ve istemci kimliğinizi eklemeniz gerekiyor.
-       */
+      function loadClient() {
+        gapi.load('client', initClient);
+      }
+
       function initClient() {
         gapi.client.init({
           apiKey: 'AIzaSyAcrK7dK6sD1oQVi9QTomQYuIpsY2cfjLw',
@@ -32,50 +39,17 @@
           discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
           scope: "https://www.googleapis.com/auth/spreadsheets.readonly"
         }).then(function () {
-          // Giriş ve çıkış butonlarını dinle
           gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-          // Mevcut kimlik doğrulama durumunu kontrol et
           updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-
-          document.getElementById('authorize_button').onclick = handleAuthClick;
-          document.getElementById('signout_button').onclick = handleSignoutClick;
-        }, function(error) {
-          appendPre(JSON.stringify(error, null, 2));
         });
       }
 
-      /**
-       *  Kimlik doğrulama durumuna göre UI'ı günceller.
-       */
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
-          document.getElementById('authorize_button').style.display = 'none';
-          document.getElementById('signout_button').style.display = 'block';
           listMajors();
-        } else {
-          document.getElementById('authorize_button').style.display = 'block';
-          document.getElementById('signout_button').style.display = 'none';
         }
       }
 
-      /**
-       *  Giriş butonunun tıklanma olayını işler.
-       */
-      function handleAuthClick(event) {
-        gapi.auth2.getAuthInstance().signIn();
-      }
-
-      /**
-       *  Çıkış butonunun tıklanma olayını işler.
-       */
-      function handleSignoutClick(event) {
-        gapi.auth2.getAuthInstance().signOut();
-      }
-
-      /**
-       *  Google Sheets API'yi kullanarak veri okur.
-       */
       function listMajors() {
         gapi.client.sheets.spreadsheets.values.get({
           spreadsheetId: '1doC_P3WjGdEKrQ_CKpZtxpitM0b62F_QNQg_yZwwhBk',
@@ -86,7 +60,6 @@
             appendPre('Name, Major:');
             for (i = 0; i < range.values.length; i++) {
               var row = range.values[i];
-              // A ve B sütunlarındaki verileri yazdır
               appendPre(row[0] + ', ' + row[1]);
             }
           } else {
@@ -97,9 +70,6 @@
         });
       }
 
-      /**
-       *  Sayfaya metin ekler.
-       */
       function appendPre(message) {
         var pre = document.getElementById('content');
         var textContent = document.createTextNode(message + '\n');
@@ -108,7 +78,7 @@
     </script>
 
     <script async defer src="https://apis.google.com/js/api.js" 
-      onload="this.onload=function(){};handleClientLoad()" 
+      onload="this.onload=function(){};loadClient()" 
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
 </body>
