@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-   
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
 <body>
-   
-
-    <button id="authorize-button" class="btn btn-outline-info" style="display: none;">Login</button>
-    <button id="signout-button" class="btn btn-outline-info" style="display: none;">Logout</button>
-    <table id="table_div" class="table table-striped">
-        <tbody></tbody>
-    <table>
-       <script>
-        // Client ID and API key from the Developer Console
+  <button id="authorize-button" class="btn btn-outline-info" style="display: none;">Login</button>
+<button id="signout-button" class="btn btn-outline-info" style="display: none;">Logout</button>
+<table id="table_div" class="table table-striped">
+    <tbody></tbody>
+<table>
+<script src="js/app.js"></script>
+<script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+<script>
+// Client ID and API key from the Developer Console
 var CLIENT_ID = '930569906823-7um6v4760bn4cu73u0ufhuouuvffpgsg.apps.googleusercontent.com';
 var API_KEY = 'AIzaSyCQtwSYcEIZ75P8b7_R3iK4jB827qwXe_0';
 // Array of API discovery doc URLs for APIs used by the quickstart
@@ -55,8 +57,8 @@ function updateSigninStatus(isSignedIn) {
 } 
 function listOrders() {
   gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1doC_P3WjGdEKrQ_CKpZtxpitM0b62F_QNQg_yZwwhBk',
-    range: 'A1:J',
+    spreadsheetId: '1WZ34E0cr1q8bfGbH_lqNzZJO5e0vtE1lhVm71L_jSOA',
+    range: 'order!A1:J',
   }).then(function(response) {
     var range = response.result;
     if (isUserAuthorized()) {
@@ -83,13 +85,7 @@ function listOrders() {
      console.log(response);
   });
 }
-       </script>
-        <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
 
-
-
-    </body>
-
-
-
+</script>
+</body>
 </html>
